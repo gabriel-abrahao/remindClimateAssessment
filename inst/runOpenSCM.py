@@ -5,7 +5,7 @@ import logging
 import os
 
 import pymagicc
-import openscm_runner
+from openscm_runner.run import run as openscm_run
 import scmdata
 import pyam
 from climate_assessment.climate.wg3 import clean_wg3_scenarios
@@ -113,7 +113,7 @@ output_variables = [
 ]
 
 # Run the cliamte emulator
-res = openscm_runner.run(
+res = openscm_run(
     climate_models_cfgs={"MAGICC7": run_cfgs},
     output_variables=output_variables,
     scenarios=scenarios,
