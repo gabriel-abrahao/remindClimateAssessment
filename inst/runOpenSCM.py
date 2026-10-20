@@ -5,10 +5,9 @@ import logging
 import os
 
 import pymagicc
-from openscm_runner.run import run as openscm_run
 import scmdata
 import pyam
-from climate_assessment.climate.wg3 import clean_wg3_scenarios
+from gcages.ar6 import AR6SCMRunner
 
 import json
 from pathlib import Path
@@ -65,8 +64,8 @@ assert all(path.exists() for path in [scenario_fn, prob_file_fn])
 # Final year for MAGICC run
 endyear = int(args.endyear)
 
-# Clean the harmonized and infilled scenario, fixing some variable names required
-scenario_df = clean_wg3_scenarios(pyam.IamDataFrame(scenario_fn))
+# Harmonized and infilled scenario, with gcages variable names
+scenario_df = pyam.IamDataFrame(scenario_fn)
 
 # Extrapolate emissions data to endyear
 scenarios = scmdata.ScmRun(scenario_df)
@@ -113,11 +112,18 @@ output_variables = [
 ]
 
 # Run the cliamte emulator
-res = openscm_run(
+# using the gcages AR6 runner, with our own MAGICC configs. The input checks are skipped, as the previous
+# harmonization and infilling step already does them.
+scm_runner = AR6SCMRunner(
     climate_models_cfgs={"MAGICC7": run_cfgs},
-    output_variables=output_variables,
-    scenarios=scenarios,
+    output_variables=tuple(output_variables),
+    force_interpolate_to_yearly=True,
+    run_checks=False,
+    progress=False,
+    # run_scms overwrites MAGICC_WORKER_NUMBER with this, so keep the value set by the caller
+    n_processes=int(os.environ["MAGICC_WORKER_NUMBER"]),
 )
+res = scmdata.ScmRun(scm_runner(scenarios.timeseries(time_axis="year")))
 
 # Write output
 climate_assessment_fn = scenario_fn.with_name(f"{scenario_fn.stem}_IAMC_climateassessment.xlsx")
