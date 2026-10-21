@@ -8,6 +8,7 @@ import pymagicc
 import scmdata
 import pyam
 from gcages.ar6 import AR6SCMRunner
+from gcages.sci_june_2026 import SCIJune2026SCMRunner
 
 import json
 from pathlib import Path
@@ -29,6 +30,7 @@ parser = argparse.ArgumentParser(
     description="Runs MAGICC for given a harmonized and infilled emissions file created by climate-assessment."
 )
 parser.add_argument("scens_file", type=str, help="an integer for the accumulator")
+parser.add_argument("--setup", default="AR6", choices=["AR6", "SCI"], help="Workflow to use, with its MAGICC version")
 parser.add_argument(
     "--climatetempdir",
     default=os.getcwd(),
@@ -46,6 +48,7 @@ parser.add_argument(
     required=True,
     help="Required, JSON file with the MAGICC parameter sets. Number of sets must match --num-cfgs",
 )
+parser.add_argument("--history-file", default=None, help="SCI only, required: historical emissions csv, to complete the emissions before 2023")
 # TODO: Unnecessary
 parser.add_argument(
     "--num-cfgs",
@@ -112,17 +115,29 @@ output_variables = [
 ]
 
 # Run the cliamte emulator
-# using the gcages AR6 runner, with our own MAGICC configs. The input checks are skipped, as the previous
+# using the gcages runner, with our own MAGICC configs. The input checks are skipped, as the previous
 # harmonization and infilling step already does them.
-scm_runner = AR6SCMRunner(
-    climate_models_cfgs={"MAGICC7": run_cfgs},
-    output_variables=tuple(output_variables),
-    force_interpolate_to_yearly=True,
-    run_checks=False,
-    progress=False,
-    # run_scms overwrites MAGICC_WORKER_NUMBER with this, so keep the value set by the caller
-    n_processes=int(os.environ["MAGICC_WORKER_NUMBER"]),
-)
+if args.setup == "AR6":
+    scm_runner = AR6SCMRunner(
+        climate_models_cfgs={"MAGICC7": run_cfgs},
+        output_variables=tuple(output_variables),
+        force_interpolate_to_yearly=True,
+        run_checks=False,
+        progress=False,
+        # run_scms overwrites MAGICC_WORKER_NUMBER with this, so keep the value set by the caller
+        n_processes=int(os.environ["MAGICC_WORKER_NUMBER"]),
+    )
+else:
+    # The SCI runner sets up its own MAGICC (v7.6.0a3) configs from the parameter sets
+    scm_runner = SCIJune2026SCMRunner.from_cmip7_scenariomip_config(
+        magicc_exe_path=Path(os.environ["MAGICC_EXECUTABLE_7"]),
+        magicc_prob_distribution_path=prob_file_fn,
+        output_variables=tuple(output_variables),
+        historical_emissions_path=Path(args.history_file),
+        run_checks=False,
+        progress=False,
+        n_processes=int(os.environ["MAGICC_WORKER_NUMBER"]),
+    )
 res = scmdata.ScmRun(scm_runner(scenarios.timeseries(time_axis="year")))
 
 # Write output

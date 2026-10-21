@@ -14,7 +14,7 @@
 appendClimateAssessmentToMif <- function(qf, mif) {
   as.quitte(mif) %>%
     # remove data from old MAGICC7 runs to avoid duplicated
-    filter(! grepl("AR6 climate diagnostics.*MAGICC7", .data$variable), ! grepl("^MAGICC7 AR6", .data$variable)) %>%
+    filter(! grepl("(AR6|SCI) climate diagnostics.*MAGICC7", .data$variable), ! grepl("^MAGICC7 (AR6|SCI)", .data$variable)) %>%
     rbind(qf) %>%
     write.mif(mif)
   return(qf)

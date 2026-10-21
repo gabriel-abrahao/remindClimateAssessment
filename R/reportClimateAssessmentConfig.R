@@ -33,6 +33,7 @@ reportClimateAssessmentConfig <- function(cfg) {
       "  probabilisticFile = ", cfg$probabilisticFile, "\n",
       "  containing nSets  = ", cfg$nSets, "\n",
       "  magiccVersion     = ", cfg$magiccVersion, "\n",
+      "  setup             = ", cfg$setup, "\n",
       "  climateAssessmentVersion = ", cfg$climateAssessmentVersion, "\n",
       "  magiccExtraConfig       = ", orDefault(cfg$magiccExtraConfig), "\n",
       "  outputVariablesFile     = ", orDefault(cfg$outputVariablesFile), "\n",

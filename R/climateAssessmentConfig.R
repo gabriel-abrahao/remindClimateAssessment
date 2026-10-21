@@ -95,6 +95,19 @@ climateAssessmentConfig <- function(outputDir, mode) {
   } else {
     NULL
   }
+  # Setup of the climate assessment, "AR6" or "SCI". The files that only belong to one of them are optional. Arguments
+  # that select the setup in the python scripts, for the harmonization/infilling and for running the climate emulator
+  cfg$setup <- if (isSet(runConfig$climate_assessment_setup)) runConfig$climate_assessment_setup else "AR6"
+  optionalFileArg <- function(flag, entry) {
+    if (isSet(runConfig[[entry]])) paste(flag, normalizePath(runConfig[[entry]], mustWork = TRUE))
+  }
+  historyFileArg <- optionalFileArg("--history-file", "climate_assessment_history_file")
+  cfg$harmInfArgs <- paste(c(
+    "--setup", cfg$setup, historyFileArg,
+    optionalFileArg("--aneris-overrides-file", "climate_assessment_aneris_overrides_file"),
+    optionalFileArg("--infilling-database-cfcs", "climate_assessment_infiller_db_cfcs")
+  ), collapse = " ")
+  cfg$climateArgs <- paste(c("--setup", cfg$setup, historyFileArg), collapse = " ")
   # Climate assessment files have a different prefix when depending on mode (i.e. run type)
   assessmentFilesPrefix <- if (mode == "report") {
     "ar6_climate_assessment_"
