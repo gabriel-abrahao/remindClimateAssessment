@@ -7,10 +7,12 @@ export(climateAssessmentConfig)
 export(emissionDataForClimateAssessment)
 export(emissionImpulseSenarios)
 export(getMagiccVersion)
+export(read.quitte.ca)
 export(renameVariableMagicc7ToRemind)
 export(renameVariableRemindToMagicc7)
 export(reportClimateAssessmentConfig)
 export(runTimeReport)
+importFrom(data.table,fread)
 importFrom(dplyr,
   arrange,
   bind_rows,
@@ -27,9 +29,18 @@ importFrom(quitte,
   interpolate_missing_periods,
   is.quitte,
   pivot_periods_wider,
+  read.quitte,
   write.mif
 )
-importFrom(readr,write_lines)
+importFrom(readr,
+  parse_number,
+  problems,
+  write_lines
+)
+importFrom(readxl,
+  excel_sheets,
+  read_excel
+)
 importFrom(rlang,.data)
 importFrom(stringr,str_to_title)
 importFrom(tidyr,pivot_wider)
