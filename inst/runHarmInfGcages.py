@@ -88,6 +88,14 @@ if args.setup == "AR6":
     infilling_db_cfcs_fn = find_file(args.infilling_database_cfcs, cfcs_candidates, "CFC infilling database")
     history_fn = find_file(args.history_file, history_candidates, "AR6 historical emissions")
 else:
+    sci_options = {
+        "--infilling-database-cfcs": args.infilling_database_cfcs,
+        "--history-file": args.history_file,
+        "--aneris-overrides-file": args.aneris_overrides_file,
+    }
+    missing = [option for option, value in sci_options.items() if value is None]
+    if missing:
+        parser.error(f"The SCI setup requires {', '.join(missing)}")
     infilling_db_cfcs_fn = Path(args.infilling_database_cfcs)
     history_fn = Path(args.history_file)
     overrides_fn = Path(args.aneris_overrides_file)
