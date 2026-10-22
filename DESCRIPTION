@@ -1,14 +1,15 @@
 Type: Package
 Package: remindClimateAssessment
 Title: REMIND integration of IIASA's `climate-assessment` package
-Version: 0.2.0
-Date: 2026-09-15
+Version: 0.2.0.9001
+Date: 2026-10-21
 Authors@R:
     person("Tonn", "Rüter", , "tonn.rueter@pik-potsdam.de", role = c("aut", "cre"))
 Description: The REMIND integration of IIASA's `climate-assessment` provides a standardized interface to simple climate models such as MAGICC7.
 License: LGPL-3
 URL: https://github.com/pik-piam/remindClimateAssessment
 Imports:
+    data.table,
     dplyr,
     lucode2,
     magrittr,
@@ -16,6 +17,7 @@ Imports:
     piamenv,
     quitte (>= 0.3144.0),
     readr,
+    readxl,
     rlang,
     stringr,
     tidyr,
